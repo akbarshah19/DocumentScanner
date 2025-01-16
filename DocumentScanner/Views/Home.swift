@@ -115,7 +115,7 @@ struct Home: View {
                 
                 self.scanDocument = nil
                 isLoading = false
-                self.documentName = "New Documentf"
+                self.documentName = "New Document"
             }
         }
     }
