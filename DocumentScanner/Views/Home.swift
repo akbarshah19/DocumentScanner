@@ -18,6 +18,7 @@ struct Home: View {
     @State private var isLoading: Bool = false
     @Query(sort: [.init(\Document.createdAt, order: .reverse)], animation: .snappy(duration: 0.25, extraBounce: 0)) private var documents: [Document]
     private let columns: [GridItem] = Array(repeating: GridItem(spacing: 10), count: 2)
+    @Namespace private var animationID
     @Environment(\.modelContext) private var context
     
     var body: some View {
@@ -25,15 +26,21 @@ struct Home: View {
             ScrollView(.vertical) {
                 LazyVGrid(columns: columns, spacing: 15) {
                     ForEach(documents) { document in
-                        
+                        NavigationLink {
+                            DocumentDetailView(document: document)
+                                .navigationTransition(.zoom(sourceID: document.uniqueViewID, in: animationID))
+                        } label: {
+                            DocumentCardView(document: document, animationID: animationID)
+                        }
                     }
                 }
+                .padding()
             }
             .navigationTitle("Documents")
             .safeAreaInset(edge: .bottom, content: CreateButton)
             .fullScreenCover(isPresented: $showScannerView) {
                 ScannerView { error in
-                    
+
                 } didCancel: {
                     showScannerView = false
                 } didFinish: { scan in

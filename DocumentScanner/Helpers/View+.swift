@@ -25,18 +25,18 @@ extension View {
     func loadingScreen(status: Binding<Bool>) -> some View {
         self
             .overlay {
-                ZStack {
-                    Rectangle()
-                        .fill(.ultraThinMaterial)
-                        .ignoresSafeArea()
-                    
-                    ProgressView()
-                        .frame(maxWidth: 40, maxHeight: 40)
-                        .background(.bar, in: .rect(cornerRadius: 10))
+                if status.wrappedValue {
+                    ZStack {
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
+                            .ignoresSafeArea()
+                        
+                        ProgressView()
+                            .frame(maxWidth: 40, maxHeight: 40)
+                            .background(.bar, in: .rect(cornerRadius: 10))
+                    }
                 }
             }
-            .opacity(status.wrappedValue ? 1 : 0)
-            .allowsHitTesting(status.wrappedValue)
             .animation(snappy, value: status.wrappedValue)
     }
     
