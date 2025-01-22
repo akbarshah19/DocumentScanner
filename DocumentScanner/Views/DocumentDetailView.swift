@@ -6,10 +6,13 @@
 //
 
 import SwiftUI
+import PDFKit
 
 struct DocumentDetailView: View {
     
     var document: Document
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         if let pages = document.pages?.sorted(by: { $0.pageIndex < $1.pageIndex }) {
@@ -54,9 +57,7 @@ struct DocumentDetailView: View {
     @ViewBuilder
     private func FooterView() -> some View {
         HStack {
-            Button {
-                //
-            } label: {
+            Button(action: createAndShareDocument) {
                 Image(systemName: "square.and.arrow.up.fill")
                     .font(.title3)
                     .foregroundStyle(.red)
@@ -65,7 +66,12 @@ struct DocumentDetailView: View {
             Spacer(minLength: 0)
             
             Button {
-                //
+                dismiss()
+                Task { @MainActor in
+                    try? await Task.sleep(for: .seconds(0.5))
+                    modelContext.delete(document)
+                    try? modelContext.save()
+                }
             } label: {
                 Image(systemName: "trash.fill")
                     .font(.title3)
@@ -73,5 +79,27 @@ struct DocumentDetailView: View {
             }
         }
         .padding([.horizontal, .top], 15)
+    }
+    
+    private func createAndShareDocument() {
+        guard let pages = document.pages?.sorted(by: { $0.pageIndex < $1.pageIndex }) else {
+            return
+        }
+        
+        let pdfDoc = PDFDocument()
+        for index in pages.indices {
+            if let pageImage = UIImage(data: pages[index].pageData),
+               let pdfPage = PDFPage(image: pageImage) {
+                pdfDoc.insert(pdfPage, at: index)
+            }
+        }
+        
+        var pdfURL = FileManager.default.temporaryDirectory
+        let fileName = "\(document.name).pdf"
+        pdfURL.append(path: fileName)
+        
+        if pdfDoc.write(to: pdfURL) {
+            
+        }
     }
 }
