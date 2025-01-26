@@ -41,6 +41,16 @@ struct DocumentCardView: View {
                                 }
                             }
                     }
+                    
+                    if document.isLocked {
+                        ZStack {
+                            Rectangle()
+                                .fill(.ultraThinMaterial)
+                            
+                            Image(systemName: "lock.fill")
+                                .font(.title3)
+                        }
+                    }
                 }
                 .frame(height: 150)
                 .clipShape(.rect(cornerRadius: 15))
